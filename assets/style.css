@@ -255,7 +255,7 @@ ul{
 	position: relative;
 }
 #img-container img{
-	background: white;
+	background: white; 
 	display: inline-block;
 	width: 40%;
 	border-radius: 10px;
