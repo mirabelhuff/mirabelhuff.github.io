@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mirabel Huff - CS1984 Project 3-1</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
+</head>
+<body>
+	<div id="wrap">
+
+		<div id="header">
+			<div id="projectInfo">
+				<div id="name"> Project 3-1: Raytracing Part 1</div>
+				<div id="info"> Mirabel Huff, CS184-abs</div>
+			</div>
+			<br>
+			<div id="classInfo">
+				<div id="subhead"> 
+					<a href="http://cs184.org"> CS184 Spring 2017 </a> taught by Professor Ren Ng at UC Berkeley
+				</div>
+			</div>
+			<br>
+		</div>
+
+		<div id="content">
+			<h1> Project Overview </h1>
+				<p> In this project, I implemented a phisically-based renderer using a pathtracting algorithm. Specifically, I generated rays in a scene and calculated their intersections, implemented a bounding box hierarchy for the objects in the scene, added direct and indirect illumination instead of the default normal shading and lastly, added adpative sampling to help reduce noise. </p>
+
+			<h1> Part 1: Ray Generation and Scene Intersection</h1>
+				<p> To begin, we must first generate the rays in the scene in order to calculate where they intersect with objects in the scene. For each sample, I generated a new ray based on the given x and y values as well as the x and y values of a random sample (normalized by the width and height of the sampele buffer). To actually generate the ray, I used linear interpolation to change the input point  to a point on the view direction, then converted it to world space ot get the ray direction. The ray origin was simply the position of the camera. </p>
+
+      			<p> Once this is complete, we can then actually check if the ray intersects a primitive. In this project, I wrote two intersection algorithms: one for triangles and one for spheres. The triangle intersection algorithm used Moller Trumbore which gives you a vector of the new t (time at intersection) as well as alpha and beta coordinates to use barycentric coordinates on the ray's normal. If the given t values was withing the current minimum and maximum t values for the ray and the barycentric variables were valid, then I would set t as the ray's new max value as well as keeping track of the normal, the current bsdf, and the primitive that was intersected.  Below are some of the resulting images.  </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/empty.png">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/spheres.png">
+					</figure>
+				</div>
+
+				<h2> Mistakes and Problems </h2>
+					<p> Below are some images I got on a couple of my incorrect tries with explanations of how I fixed them. </p>
+
+					<div class="imgHolder">
+						<figure>
+							<img class = "three" src="assets/img/broke2.png">
+							<p>Full disclosure, I'm not sure what exactly was wrong to create this image. However, to fix it, I tried to rewrite my boundchecks and that fixed it.</p>
+						</figure>
+					</div>
+			
+
+			<h1> Part 2: Bounding Volume Hierarchy</h1>
+		    	<p> The above algorith is quite slow on objects with more than a small amount of primitives (for reference, the object above has 12 and 14 primitives in the scene). So, to get past this, we introduced some bounding boxes to create a bounding volume hierarchy (BVH). </p>
+		     	<p> To construct the BVH, I first computed all the bounding boxes for each primitve. Then, I created a new BVH node. If the size of the primitive list was smaller than a given value, then the new bounding box is a leaf node on the BVH tree, so I would return the newly created node. If it was not a leaf, I recursively created the rest of the tree, using the axis that was the largest on the bounding box's extent. I split the axis by taking the midpoint and then, I sorted the primitives into left and right vectors based on which side of the split point the current primitive's centroid fell. I checked to make sure that both sides were not empty (to avoid infinite recursion) and if one side was empty, I would pop off an element from the non-empty side and give it to the empty side. Finally, I repeated this process on both the left and right sides to create the entire tree. </p>
+
+		      	<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/out.gif">
+					</figure>
+				</div>
+
+				<p> Then, I implemented intersections for the BVH. First, I checked if the current bounding box was intersected by the ray. If it was, and the node was a leaf on the BVH, I looped through all the primitives in that node and checked if the ray intersected the primitive. If it did not, I continued down the tree and checked the node's left and right children in the same way. Below are some images with high numbers of primitives.</p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/p2bench.png">
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/p2blob.png">
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/p2bunny.png">
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/p2cow.png">
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/p2max.png">
+					</figure>
+				</div>
+
+				<h2> Mistakes and Problems </h2>
+					<p> Below are some images I got on a couple of my incorrect tries with explanations of how I fixed them. </p>
+
+					<p> For all the images below,  I was frustrated to no end trying to solve the problem. I double checked my algorithm a hundred times before I realized that I was using the centroid box instead of the primitive's bounding box. As soon as I changed that one variable, everything worked great. I did get some cool images out of this frustration though. </p>
+					<div class="imgHolder">
+						<figure>
+							<img class = "four" src="assets/img/broke4.png">
+						</figure>
+						<figure>
+							<img class = "four" src="assets/img/broke5.png">
+						</figure>
+						<figure>
+							<img class = "four" src="assets/img/broke6.png">
+						</figure>
+					</div>
+
+		    <h1> Part 3: Direct Illumination </h1>
+		      	<p> The next step was to inroduce different lighting situations instead of using the default normal shading. To do this, I first implemented BSDF's for diffuse. I then looped through every light in the scene. If the light was a delta light, I only got one sample from the light since all the samples would be the same. If it was not a delta light, I took ns_area_light samples from the light. Then, for each sample, I got the incoming radience, a w_in vector that gives the direction from the hit to the light source, and the probability density function evaluated at the returned w_in direction. I converted the w_in vector from world space to object space then checked if the sampled light point was behind the surface or in front of it. To do this, I just checked if the z coordinate of w_in was negative. If the sampled light point is behind the surface, then we don't have to worry about it. If the sampled light point is in front of the surface, I cast a shadow ray from the hit point to the light and checked to see if intersected the scene anywhere. If there was an intersect, I found the spectrum given w_out and w_in. I accumulated these results for each light and returned the result. Below are some examples.</p>
+		      	<div class="imgHolder">
+		      		<figure>
+						<img class = "three" src="assets/img/dragon_64_32_2.png">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/bunny_64_32.png">
+					</figure>
+				</div>
+
+				<p> Below are multiple renderings of the dragon with varying numbers of light rays and 1 sample per pixel. As you can see, the more light rays there are, the less noise appears in the image. </p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/dragon_p3_1.png">
+						<figcaption> 1 Light Ray</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/dragon_p3_4.png">
+						<figcaption> 4 Light Rays</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/dragon_p3_16.png">
+						<figcaption> 16 Light Rays</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/dragon_p3_64.png">
+						<figcaption> 64 Light Rays</figcaption>
+					</figure>
+				</div>
+
+				<h2> Mistakes and Problems </h2>
+					<p> Below are some images I got on a couple of my incorrect tries with explanations of how I fixed them. </p>
+					<div class="imgHolder">
+						<figure>
+							<img class = "four" src="assets/img/dragon_NoShadow.png">
+							<p>At first, I was getting a red dragon, but then I realized I was forgetting to multiply the reflectance into the BSDF. I also wasn't getting a shadow because my ray intersection wasn't taking account for rays that begin within the box or primitive.</p>
+						</figure>
+						<figure>
+							<img class = "four" src="assets/img/dragon_64_32_tooDark.png">
+							<p>Then, I was getting a dragon that was too dark because I wasn't incorporating pdf into the returned value.</p>
+						</figure>
+					</div>
+
+
+		    <h1> Part 4: Indirect Illumination </h1>
+		     	<p> Once direct illumination was implemented, I added indirect illumination to account for more bounces of light. Part of this included implementing Russion Roulette to decide which rays to follow and which rays to terminate. </p>
+
+		     	<p> To implement this part o the project, I took a sample from the BSDF. Then, I got the reflectance of this sample and figured out the termination probability. The probability was calculated by multiplying the reflectance by a large number (I used 10) and offsetting it by 0.05 to make sure the ray wouldn't be terminated too early. Then, I clamped this termiation value to be between 0 and 1 and finally, I took one minus the clamped value to get the probability. Then, I got a random number and if it was within this termination probability, I calculated the new ray's origin and direction and set the depth to be the current ray's depth minus 1. Then, I traced this new ray and recorded it's radience. I scaled this radience by the original sample as well as a cosine factor and dividing it by the probability density function and 1 minus the termination probability. I got the following results with both direct and indirect illumination. </p>
+
+		     	<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/spheresp4.png">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/bunnyp4.png">
+					</figure>
+				</div>
+
+				<p> Below is a comparison of direct illumination and indirect illumination </p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/spheresD.png">
+						<figcaption>Direct Illumination only</figcaption>
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/spheresID.png">
+						<figcaption>Indirect illumination only</figcaption>
+					</figure>
+				</div>
+
+				<p> Below are different renders with varying maximum ray depths </p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4_0.png">
+						<figcaption>max ray depth = 0</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4_1.png">
+						<figcaption>max ray depth = 1</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4_2.png">
+						<figcaption>max ray depth = 2</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4_3.png">
+						<figcaption>max ray depth = 3</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4_100.png">
+						<figcaption>max ray depth = 100</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_p4.gif">
+						<figcaption>The differences are kind of subtle so here is a gif looping through the above images.</figcaption>
+					</figure>
+				</div>
+
+				<p> Now, I've compared renders with differenct sample-per-pixel rates and 4 light rays. <p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/bunny_1_4.png">
+						<figcaption>samples per pixel = 1</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_2_4.png">
+						<figcaption>samples per pixel = 2</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_4_4.png">
+						<figcaption>samples per pixel = 4</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_8_4.png">
+						<figcaption>samples per pixel = 8</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_16_4.png">
+						<figcaption>samples per pixel = 16</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_64_4.png">
+						<figcaption>samples per pixel = 64</figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/bunny_1024_4.png">
+						<figcaption>samples per pixel = 1024</figcaption>
+					</figure>
+				</div>
+
+				<h2> Mistakes and Problems </h2>
+					<p> Below are some images I got on a couple of my incorrect tries with explanations of how I fixed them. </p>
+					<div class="imgHolder">
+						<figure>
+							<img class = "four" src="assets/img/forgetting max depth ray.png">
+							<p>I forgot to incorporate max depth rays into the trace ray function so I got all black spheres. </p>
+						</figure>
+
+					</div>
+
+
+		    <h1> Part 5: Adaptive Sampling </h1>
+		      	<p> The last part of this project was implementing adaptive sampling in order to try to get less noise in our images. To do this, we can increase the number of samples per pixel but we don't have to do this for every pixel. Some pixels can converge faster with low sampling rates so adaptive sampling tries to find these pixels and return earlier on them to both reduce noise and speedup the renders. </p>
+
+		      	<p> To do this, I calculated the mean and standard deviation of the samples I'd already taken trhough a given pixel. Then, to measure it's convergence, I defined a variable I = 1.96 * (standard deviation / sqrt(number of samples)). If I is less than the max tolerance multiplied by the mean, then we can say the pixel has converged. I kept track of the number of samples by filling a sample count buffer to create the rate image shown below. </p>
+
+
+		      	<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/bunny.png">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/bunny_rate.png">
+						<figcaption> Sampling Rate Image</figcaption>
+					</figure>
+				</div>
+
+				<h2> Mistakes and Problems </h2>
+					<p> Below are some images I got on a couple of my incorrect tries with explanations of how I fixed them. </p>
+					<div class="imgHolder">
+						<figure>
+							<img class = "four" src="assets/img/sphereSampling_rate.png">
+							<p> At first I was getting almost completely red rate images but then I realized that 1) I had  my parenthesis wrong for one part of the equations and 2) I forgot to take the square root of the variance. </p>
+						</figure>
+
+					</div>
+
+	</div>
+</body>
+</html

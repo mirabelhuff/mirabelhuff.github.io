@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mirabel Huff - CS1984 Project 1</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
+</head>
+<body>
+	<div id="wrap">
+
+		<div id="header">
+			<div id="projectInfo">
+				<div id="name"> Project 1: Rasterizer</div>
+				<div id="info"> Mirabel Huff, CS184-abs</div>
+			</div>
+			<br>
+			<div id="classInfo">
+				<div id="subhead"> 
+					<a href="http://cs184.org"> CS184 Spring 2017 </a> taught by Professor Ren Ng at UC Berkeley
+				</div>
+			</div>
+			<br>
+		</div>
+
+		<div id="content">
+			<h1> Project Overview </h1>
+				<p> In this project, I implemented a basic rasterizer that includes supersampling, transforms, and texture mapping. </p>
+				<p> Through this project, I cememnted my understanding of how to assign colors to pixels in a multitude of different ways and how different approaches result in different quality images. I knew a little bit about texture mapping from my experience using Autodesk Maya but now I actually understand the process and how the texture can map to an actual surface. </p> 
+
+			<h1> Section 1: Rasterization </h1>
+				<h2> Part 1: Rasterizing Single-Color Triangles </h2>
+					<p> For this part, I implemented a basic in-triangle test. We were given the points of a triangle and had to determine if a point was within the triangle in order to determine what color to assign it. To do this, you could treat each line of the trianlge as a bound for a half-plane. If L(x,y) was equal to zero, the pount was on the line. Greater than 0 meant inside the half-plane and less than zero mean outside the half-plane. Using these values for all three lines would determine if the point was within the triangle. In order to avoid checking all the pixels in the image every time, my algorithm found the smallest bounding rectangle for the given triangle points and only checked the pixels in that bounding box. For this first part, the color we were meant to assign was passed into the function so we didn't have to worry about determining the color. Below are some examples of the resulting images. </p>
+
+					<div class="imgHolder">
+						<figure>
+							<img class = "two" src="assets/img/dragon.png">
+						</figure>
+						<figure>
+							<img class = "two" src="assets/img/flower.png">
+						</figure>
+						<figure>
+							<img class = "two" src="assets/img/part1b.png">
+						</figure>
+					</div>
+					<div class="imgHolder">
+						<figure>
+							<img class = "two" src="assets/img/part1.png">
+						</figure>
+					</div>
+
+					<p> I sped up the algorithm a little bit by taking any duplicate variables out of my nested four loops. For the triangles, the speed up was negligible, going from 0.005758s to 0.005374s. It was better for the dragon, going from 0.04652s to 0.027308s. </p>
+
+					<p> In the last image, you can see some jaggies in the pixel inspector. These are caused because some points don't quite the in-triangle test above so the image isn't as smooth as it could be. In the next part, I'll improve this with super sampling. </p>
+
+
+				<h2> Part 2: Antialiasing Triangles </h2>
+					<p> In order to help improve the look of jaggies, I implemented supersampling. For every pixel, instead of just using one sample to determine the color, I used a variable number (4, 9, or 16). I split each pixel into x parts and applied the in-triangle test to each sub-pixel. Then, I averaged all the sub-pixel colors to get a more accurate color for the whole pixel. Now, the lines should be much smoother because there will be a fade from color to background.  <p>
+					<div class="imgHolder">
+						<figure>
+							<img class = "two" src="assets/img/ss1.png">
+							<figcaption> 1 sample </figcaption>
+						</figure>
+						<figure>
+							<img class = "two" src="assets/img/ss2.png">
+							<figcaption> 4 samples</figcaption>
+						</figure>
+						<figure>
+							<img class = "two" src="assets/img/ss3.png">
+							<figcaption> 9 samples</figcaption>
+						</figure>
+						<figure>
+							<img class = "two" src="assets/img/ss4.png">
+							<figcaption> 16 samples</figcaption>
+						</figure>
+					</div>
+				<h2> Part 3: Transforms </h2>
+					<p> For this part, I added some simmple transform matrices. I added matrices for scaling, rotating, and translating. Below you can see the effects in the form of a robot doing jumping jacks. </p>
+
+					<div class = "imgHolder" >
+						<figure>
+							<img class = "two" src="assets/img/robot.gif">
+						</figure>
+					</div>
+
+		<h1> Section 2: Sampling </h1>
+			<h2> Part 4: Barycentric Coordinates</h2>
+				<p> There's another way to determine the color of a pixel within a triangle using barycentric coordinates. Barycentric coordinates are alpha, beta, and gamma values that relate a point to the three vertexes of a triangle. Then, you can use this relation to determine the proportion of color that point takes from each vertex. In order for this to work, alpha, beta and gamma must add up to be one. If they are not one, that means the point that we are currently looking at is not within the triangle. </p>
+				<div class = "imgHolder" >
+					<figure>
+						<img class = "two" src="assets/img/triGradient.png">
+						<figcaption> Each vertex of this trianlge is pure red, green, or blue (in the RGB spectrum). Using barycentric coordinates results in a smoothly blended triangle. </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/circle.png">
+						<figcaption> A color wheel </figcaption>
+					</figure>
+				</div>
+
+				<p> Below are some mistake versions of the color wheel seen above. For the first image, my mistake was a simple type while indexing. Unfortunately, I don't remember my bug for the other two but I thought the images looked cool so I included them anyway.  </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/mistake2.png">
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/mistake1.png">
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/mistake3.png">
+					</figure>
+				</div>
+			<h2> Part 5: "Pixel Sampling" For Texture Mapping</h2>
+				<p> Pixel sampling is one method used to map (x, y) coordinates on a plane to (u, v) coordinates of a texture. There are two methods of pixel sampling that I implemented here. First, I implemented nearest-pixel, which just takes the closest match for (u, v) to (x, y) mapping.  </p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/nearest1.png">
+						<figcaption> Nearest-Pixel with 1 Sample </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/nearest16.png">
+						<figcaption> Nearest-Pixel with 16 Samples </figcaption>
+					</figure>
+				</div>
+
+				<p> Once my nearest-pixel was working, it was fairly straigtforward to implement bilinear sampling. Instead of taking the nearest pixel that maps, now I took the weighted sum of the four closest pixels. </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/bilinear1.png">
+						<figcaption> Bilinear interpolation with 1 Sample </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/bilinear16.png">
+						<figcaption> Bilinear interpolation with 16 Samples </figcaption>
+					</figure>
+				</div>
+
+			<p> The largest difference between these two sampling methods would be clear with an image whose texture is "farther away", such a plane that goes into the distance. The quality of the image near the "horizon" of this plane would vary depening of the sampling method and the sampling rate. </p>
+			<p> In the examples above, you can see that bilinear sampling with 1 pixel resulted in smoother lines, particularly when you look at the white longitude line below the red one. The nearest-pixel image with 16 simples is of comparable quality but you can once again see an improvement when you move on to bilinear with 16 samples. </p>
+
+			<p> I ran into a couple problems with implementation at first. Below you can see some of the images that were outputted with buggy code. </p>
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/mistake4.png">
+						<figcaption> Using Doubles to Index into the texture</figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/mistake5.png">
+						<figcaption> Using a combination of doubles and integers to index into the texture </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/mistake6.png">
+						<figcaption> Using the same beta value from my barycentric coordinates twice </figcaption>
+					</figure>
+				</div>
+
+			<h2> Part 6: "Level Sampling" With Mipmaps For Texture Mapping</h2>
+				<p> The last sampling method I implemented involved different levels of mipmaps. Mipmaps are pyramids of pre-calculated images, each of which is a progressively lower resolution and a power of two smaller than the level before. In part 5, I was only using level 0. Now, I can access other levels of the mipmap pyramid to improve the texture on each pixel and use this in conjuction with the different sampling methods as well as the number of samples. </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/near.gif">
+						<figcaption> nearest pixel sampling with level 0, nearest level, and bilinear level interpolation </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/bi.gif">
+						<figcaption> bilinear sampling with level 0, nearest level, and bilinear level interpolation</figcaption>
+					</figure>
+				</div>
+
+				<p> The changes in the nearest pixel sampling are very small but you can see the jaggies on the edge dissapearing. Some of the border pixels also get blurred out a little bit. For bilinear sampling, the jaggies are diminished but some of the texture is offset as well. However, that is only noticible in gif form and if the image were to stand on it's on, I don't believe it would be a problem. </p>
+
+				<p> I had a bit of trouble implementing this part as well, but most of my problems came from misreading the formulas. </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "two" src="assets/img/mistake7.png">
+						<figcaption> Here, I was using the texture's height and width to calculate indicies when I should have been using the mipmap's height at that level. This wasn't a problem with Part 5 because the texture width and height is the same as the mipmap's width and height at level 0 but changes as you go deeper into the mipmap pyramid.</figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/mistake8.png">
+						<figcaption> I misread the equation to calculate levels and wasn't taking the log2 of the maximum of differences. </figcaption>
+					</figure>
+					<figure>
+						<img class = "two" src="assets/img/correct.gif">
+						<figcaption> Here is the correct implementation with the same images from above. It includes nearest point sampling with level 0, nearest level and bilinear level interpolation. </figcaption>
+					</figure>
+				</div>
+
+		<h1> Final Thoughts </h1>
+			<p> All in all, I really enjoyed this project. It was really cool to see some of the tools I'd taken for granted in Autodesk Maya in action, especially when I used the marble texture from my texturing library for Part 6. It's fascinating to see the implementation of graphics ideas that I use on almost a daily basis. </p>
+
+	</div>
+</body>
+</html

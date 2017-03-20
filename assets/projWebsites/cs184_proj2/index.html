@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mirabel Huff - CS1984 Project 2</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
+</head>
+<body>
+	<div id="wrap">
+
+		<div id="header">
+			<div id="projectInfo">
+				<div id="name"> Project 2: MeshEdit</div>
+				<div id="info"> Mirabel Huff, CS184-abs</div>
+			</div>
+			<br>
+			<div id="classInfo">
+				<div id="subhead"> 
+					<a href="http://cs184.org"> CS184 Spring 2017 </a> taught by Professor Ren Ng at UC Berkeley
+				</div>
+			</div>
+			<br>
+		</div>
+
+		<div id="content">
+			<h1> Project Overview </h1>
+				<p> In this project, I implemented some mesh editing ideas. First, I implemented Bezier curves and surfaces to create smooth and scalable curves. Then I used the half-edge data structure to define the mesh and implemented mesh upsampling with loop subdivision. Lastly, I created a phong shader to apply to the meshes. </p>
+
+			<h1> Section 1: Bezier Curves and Surfaces</h1>
+				<h2> Part 1: Bezier Curves with 1D de Casteljau subdivision </h2>
+					<p> I used the 1D de Casteljau algorithm to evaulate Bezier Curves. I implemented one step of the curve evaualtion by taking the most recent evaluated level and using linear interpolation on the set of N control points to calculate a new set of N-1 points. Then, you can call the function as many times as needed to get down to one point. Then, the curve is created by doing this for multiple positions on the line between the control points (see the final gif for an example).</p>
+
+          <p> Below is the evaluation of a Bezier curve with 6 control points </p>
+
+					<div class="imgHolder">
+						<figure>
+							<img class = "three" src="assets/img/bcurve1.png">
+              <figcaption> The original curve </figcaption>
+						</figure>
+					</div>
+          <div class="imgHolder">
+            <figure>
+              <img class = "three" src="assets/img/bcurve.gif">
+              <figcaption> The evaluated levels </figcaption>
+            </figure>
+            <figure>
+              <img class = "three" src="assets/img/bcurve.png">
+              <figcaption> The evaluated curve </figcaption>
+            </figure>
+          </div>
+          <div class="imgHolder">
+            <figure>
+              <img class = "three" src="assets/img/curve.gif">
+              <figcaption> Messing around with the GUI </figcaption>
+            </figure>
+          </div>
+
+
+				<h2> Part 2: Bezier Curves with Separable 1D de Casteljau Subdivision </h2>
+					<p> After evaluating the curve at one level, we can move on to evaluating surfaces. Now, we have to apply the de Casteljau algorthim in two dimensions. In order to do this, we first apply the algorithm to each line in one dimension (represented by the gray lines in the image below) and then use the same algortihm on the resulting points in the other dimension (the blue line). <p>
+
+					<div class="imgHolder">
+						<figure>
+							<img class = "three" src="assets/img/slides1.png">
+							<figcaption> <a href ="https://cs184.org/lecture/curves-surfaces/slide_071"> Image Source </a> </figcaption>
+						</figure>
+					</div>
+
+          <p> I implemented this by creating a helper function that would evaluate the given points to completion (i.e. when there was only one point left) and then return the final point. I saved all these points in a vector called q and once I was done evaluating all the "gray" lines, I evaluated all the points in q to get the final point value. </p>
+
+          <div class="imgHolder">
+            <figure>
+              <img class = "three" src="assets/img/bTeapot.png">
+              <figcaption> The resulting surface when using this algorithm </figcaption>
+            </figure>
+          </div>
+
+		<h1> Section 2: Loop Subdivision of General Triangle Meshes </h1>
+      <p> For an overview of the Half-edge data structure, <a href="https://cs184.org/article/10">click here.</a> </p>
+			<h2> Part 3: Average Normals for Half-Edge Meshes</h2>
+				<p> For this part, I found the normal vector for each vertex in order to produce more realistic shading than flat shading. In order to do this, I started with a given vertex's halfedge. Then, for each face connected to the halfedge, and for each of the other two vertices in the face, I subtracted the position of the original vertex from the position of the connected vertex to get the edge. Then, I take the two new vectors resulting from this subtraction and get the cross product. I add up the cross products for each face and then return the normalized value. </p>
+        <div class="imgHolder">
+            <figure>
+              <img class = "three" src="assets/img/faceNormals.png">
+              <figcaption> Default Flat Shading </figcaption>
+            </figure>
+            <figure>
+              <img class = "three" src="assets/img/vertexNormals.png">
+              <figcaption> Average Vertex Normals </figcaption>
+            </figure>
+          </div>
+
+			<h2> Part 4: Half-Edge Flip</h2>
+				<p> In this part, I implemented edge flipping. This is when you select an edge between a pair of triangles and change it to connect the other two vertices it does not touch in the triangle. </p>
+
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/slides2.png">
+            <figcaption> <a href="https://cs184.org/article/9"> Image Source </a></figcaption>
+          </figure>
+        </div>
+
+        <p> Since we're using a Half-Edge data structure, this can be implemented simply by reassinging pointers. This hard part is keeping track of all the pointers that need to be reassigned. To avoid any pointer errors, I first created variables for every object around the edge meant to be flipped. Then, I reset every halfedge, which means to reassign it's next, twin, vertex, edge ad face. Finally, I reset the faces, edges, and vertices to point to one of the reasssigned halfedges. </p>
+
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/edgeFlip.gif">
+            <figcaption> </figcaption>
+          </figure>
+        </div>
+
+        <p> I had an issue at first understanding how to assign edges and faces when it seemed to me that we were creating new ones. According to the spec, we were not allowed to create or delete elements. I specifically didn't understand how you were supposed to know where you were if each face/edge only pointed to one halfedge. I thought if you didn't know where you were, how were you supposed to reassign the pointers to the correct place? However, after posting to Piazza and going to office hours, I learned that face and edge pointers just need to be any of the halfedges that are contained within that face or edge and it didn't really matter if we knew where we were. So, I simply assigned the face and edge to point to halfedges that were either within the face or touching the edge and my code worked. </p> 
+
+
+
+			<h2> Part 5: Half-Edge Split</h2>
+				<p> In this part, I implemented edge splitting. This is when you take an edge and split it into two as shown below. </p>
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/slides3.png">
+            <figcaption> <a href="https://cs184.org/article/9"> Image Source </a></figcaption>
+          </figure>
+        </div>
+
+        <p> This part is similar to edge flipping but now, there are 6 new halfedges, 3 new edges, 2 new faces, and 1 new vertex to create and assign pointers for. Like the part before, I first created variables for every element around the edge I was going to modify and created the new faces, edges, and vertex that would be required. To get the new vertex's position, I averaged the positions of the two vertices connecting the given edge. This was the only thing I modified while creating and declaring all the variables. Once everything was declared, I started off by assigning the neighbors (next, twin, vertex, edge and face) for each of the new halfedges. Then, I set the next halfedge and the face for each of the halfedges on the border of the two triangles (so edges ca, ab, bd, and dc in the image above). Once all the halfedges were correctly set, I just had to assign the halfedges for the other elements, which meant assiging halfedges to the vertices, faces, and edges that I modified in creating the split. </p>
+
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/split.gif">
+            <figcaption> Some edge splits </figcaption>
+          </figure>
+        </div>
+
+        <p> I heard a lot about how this part caused headaches for my friends in the class because of missed pointers, so I meticulously drew out the split and wrote down every pointer that would need to change. There were some pointers that I initially missed when I first wrote this part. However, I found them before starting part 6 because I decided to try to recreate upsampling by hand just to double check if my flip and split worked correctly and to test my understanding of upsampling. I'll explain this test more in the next part but in doing this, I was able to find that I was forgetting to reassign the half-edges for the outer vertices (a, b, c, d in the first image above). I fixed those pointers, and my split worked fine. </p>
+
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/cube1.png">
+            <figcaption> Original Cube </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/cube2.png">
+            <figcaption> Splitting every edge </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/cube3.png">
+            <figcaption> Flipping every new edge that touches an old and new vertex </figcaption>
+          </figure>
+        </div>
+
+      <h2> Part 6: Loop Subdivsion for Mesh Upsampling </h2>
+        <p> Mesh upsampling is a way to add more detail to a mesh. In this project, we used loop subdivision to upsample by splitting every edge and then flipping every new edge that connects an old vertex with a new vertex. </p>
+
+        <p> To implement this, I first had to find the new positions for all the vertices, old and new. To find the new position for an old vertex, you use the equation </p> 
+        <p><b> (1 - n*u) * original_position + u * neighbor_position_sum </b></p>
+        <p> where n is the degree of the vertex and u is 3/16 if n is 3 and 3/8n otherwise. While I'm looping through the original mesh vertices, I make sure to set every vertices isNew boolean to false. To find the position of a new vertex that splits an edge AB and had the opposite vertices C and D, you simply do </p>
+        <p><b> 3/8 * (A_position + B_Position) + 1/8 * (C_position + D_position) </b></p>
+        <p> I went back to my split edge function to set the isNew values for the edges and vertices that are modified. Then I split every edge in the mesh, in any order. Then I flip any new edge that has one old vertex and one new vertex. The last thing I do is set all the vertices the positions I calculated at the beginning. </p>
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/upsample1.png">
+            <figcaption> Original Teapot </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/upsample2.png">
+            <figcaption> One round of upsampling </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/upsample3.png">
+            <figcaption> Two rounds of upsampling</figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/upsample4.png">
+            <figcaption> Three rounds of upsampling</figcaption>
+          </figure>
+        </div>
+
+        <p> In order to debug, I first ignored anything to do with vertex positions to make sure my flips and splits were being called correctly. I ended up with the same image as I got when I manually implemented upsampling in the GUI. At first, I realized I was flipping all edges that had an old and new vertex instead of just the new edges that had an old and new vertex. Once I fixed that, I put the position calculations back in. I realized that some of my fractions were dividing as integers instead of floats so I fixed that and my upsampling was working correctly. </p>
+
+        <p> In the example below, you can see that the window of the car loses has some jagged edges. This is because the original mesh has some weird topology. Edge loops that are more consistently laid out and are "smoother" will upsample better because it splits. So, when I flip the edges that are messing up the edge flow, the window is smoother when you upsample. Note that are still some weird edges when I upsample in the second case because I didn't fix the edge flow for the entire car, just for the border around the window. </p>
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/upsampleCar.gif">
+            <figcaption> Jagged Edges </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/upsampleCar2.gif">
+            <figcaption> Fixing the jagged edges </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/upsampleCar.png">
+            <figcaption> Still Image of the fixed jagged edge on the window </figcaption>
+          </figure>
+        </div>
+
+        <p> In the case of the cube, you can see that the shape gets altered with each iteration. You can play around with flipping and splitting before running upsampling to try to preserve the symmetry of the cube. Specifically, what I did to fix it was to split the edge that divided each face of the cube so the edge loops themselves would be more symmetrical. Then, when I upsample, the cube keeps its symmetry. When the loops are not symmetrical, the positions of the new vertices are going to be weighted in the direction of the diagonal, so when you split that center edge, you rebalance the weights for the new vertex positions. </p>
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/ucube.gif">
+            <figcaption> Cube losing its symmetry with upsampling </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/ucube2.gif">
+            <figcaption> Cube retaining its symmetry with upsampling </figcaption>
+          </figure>
+        </div>
+
+    <h1> Section 3: Shaders </h1>
+      <h2> Part 7: Creating a Phong Shader </h2>
+        <p> The last part of this project was to implement a phong shader. This was a simple matter of translating the equations to calculate diffuse, ambiance, and specular shading into OpenGL's shader language. </p>
+
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/regShading.png">
+            <figcaption> Regular flat shading </figcaption>
+          </figure>
+          <figure>
+            <img class = "three" src="assets/img/bettershading.png">
+            <figcaption> Phong Shading (with green coloring) </figcaption>
+          </figure>
+        </div>
+
+        <p> In my implementation, I made a mistake that caused the colors of the mesh to change as I rotated around the screen. I don't fully understand what I did wrong but I really liked the effect so I saved the code in another function called multiColor and set it as another shader option. </p>
+        <div class="imgHolder">
+          <figure>
+            <img class = "three" src="assets/img/weirdColors.gif">
+          </figure>
+        </div>
+
+
+	</div>
+</body>
+</html

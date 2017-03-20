@@ -1,0 +1,133 @@
+/* Colors:
+	#4b4237 - dark lava (looks like dark brown) -> font
+	#D5A021 - goldenrod
+	#EDE7D9 - eggshell -> background
+	#A49694 - spanish grey (looks like light mauve)
+	#736B60 - dim gray (looks like grey tan) -> font
+*/
+html {
+	display: table;
+	margin: auto;
+}
+body {
+	background-color: #EDE7D9;
+	font-family: Helvetica;
+	display: table-cell;
+	width: 1000px;
+}
+
+#wrap {
+	//width: 1000px;
+}
+
+#header {
+	width: 100%;
+	border-bottom: 5px #D5A021 solid;
+}
+
+#header #projectInfo {
+	letter-spacing: 2px;
+	color:#4b4237; 
+	text-align: center;
+}
+
+#header #projectInfo #name {
+	text-transform: uppercase;
+	font-weight: bolder;
+	font-size: 26px;
+}
+
+#header #projectInfo #info {
+	font-weight: bold;
+	font-size:  20px;
+}
+
+#header #projectInfo #subinfo {
+	font-style: italic;
+}
+
+a:visited, a:active, a:link {
+	text-decoration: none;
+	color: : #A49694;
+	text-transform: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#classInfo {
+	text-align: center;
+	color: #A49694;
+}
+
+h1 {
+	font-weight: bolder;
+	letter-spacing: 2px;
+	font-size: 20px;
+	color: #4b4237;
+	padding-left: 20px;
+}
+
+h2 {
+	font-weight: bold;
+	letter-spacing: 2px;
+	font-size: 17px;
+	color: #4b4237;
+	padding-left: 50px;
+}
+
+p {
+	font-size: 14px;
+	padding-left: 50px;
+	color: #4b4237;
+}
+
+.relative {
+	position: relative;
+}
+
+.absolute {
+	position: absolute;
+}
+
+#naive {
+}
+
+.imgHolder {
+	text-align: center;
+}
+
+img.one {
+	display: inline-block;
+	width: 200px;
+	/* margin-right: 15px; */
+}
+.imgHolder figure {
+	display: inline-block;
+}
+
+figcaption {
+	color: #736B60;
+}
+
+img.two {
+	width: 100%;
+}
+
+.float {
+	float: left;
+}
+
+img.three {
+ 	width: 400px;
+}
+
+img.four {
+	width:500px;
+}
+
+img#colorized {
+    width: 400px;
+    margin-bottom: 25px;
+}

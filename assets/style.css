@@ -236,7 +236,7 @@ ul{
 	background: rgba(53, 73, 92, .95);
 	position: absolute;
 	z-index: 1000;
-	height: 200%;
+	height: 1000%;
 	width: 100%;
 	display: none;
 }
@@ -257,7 +257,7 @@ ul{
 #img-container img{
 	background: white; 
 	display: inline-block;
-	width: 40%;
+	width: 100%;
 	border-radius: 10px;
 }
 
