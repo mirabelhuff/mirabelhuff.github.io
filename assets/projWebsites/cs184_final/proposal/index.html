@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CS184 Final Project Proposal</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
+</head>
+<body>
+	<div id="wrap">
+
+		<div id="header">
+			<div id="projectInfo">
+				<div id="name"> Final Project Proposal - 3D Fluid Simulator</div>
+				<div id="info"> Mirabel Huff, CS184-abs</div>
+			</div>
+			<br>
+			<div id="classInfo">
+				<div id="subhead"> 
+					<a href="http://cs184.org"> CS184 Spring 2017 </a> taught by Professor Ren Ng at UC Berkeley
+				</div>
+			</div>
+			<br>
+		</div>
+
+		<div id="content">
+			<h1> Project Overview </h1>
+				<p> For this project, we will build a 3D fluid simulator using particles.  </p>
+
+				<h2> Team Members </h2>
+					<p> Mirabel Huff: 4th year Computer Science major </p>
+					<p> AnnaMarie Garlin: 3rd year Cognitive Science/Math major </p>
+
+			<h1> Problem Description </h1>
+      			<p> Physically based simulations of fluids are some of the most visually interesting animations in the graphics world, but they are also incredibly computationally expensive. We want to first create a water simulator and then hopefully implement the algorithm in the Position Based Fluids (PBD) paper by Miles Macklin and Matthias Muller which outlines a method for fluid collision. The paper describes a solver that addresses energy loss, includes surface tension, and improves particle distribution.  Most importantly, it is more efficient than other methods for fluid simulation. It has a solver for a set of positional constraints that enforce constant density that is integrated with the stable Position Based Dynamics method.  We are also going to go more in depth and create simulations for other fluids as well. We will need to account for the different properties of these liquids (like density) and create shaders for them too.</p>
+
+			<h1> Goals and Deliverables</h1>
+		    	<h2> What We Plan to Deliver </h2>
+		    		<p> Since our project is on fluid simulation using particles, we will likely submit videos and/or gifs of the particles interacting with each other. We plan to start with implementing the fluid properties of water and then we will add other types of liquids, such as mercury or melted chocolate. </p>
+
+		    		<p> To measure the quality of our system, we plan to compare the use of our fluid simulator to the simulator used in Autodesk Maya as well as measuring how long it takes to run. </p>
+
+		    	<h2> What We Hope to Deliver </h2>
+		    		<p> If we have time, we like to implement collision with non-particles. So, for example, if we had a model of a bunny in the middle of the particles, the particles would react with the primitives that make up the bunny and bounce off of it's surface. </p>
+		    		<p> We would also like to implement renders of our simulation if we can, not just videos of how the particles move. This would involve setting different shaders for the different fluids that we would implement. </p>
+
+		    <b><h1> Schedule</h1></b>
+		    	<p> Week 1: </p>
+		    	<p> Create a simulation environment that we will be able to test our work in.</p>
+		    	<p> Week 2: </p>
+		    	<p> Implement a fluid simulator for water. </p>
+		    	<p> Week 3: </p>
+		    	<p> Tweak the parameters of our simulator to resemble mercury and chocolate instead of water.  Create shaders for these new fluids.</p>
+		    	<p> Week 4: </p>
+		    	<p> Use the PBD paper to simulate water collision.</p>
+
+
+		    <h1> Resources </h1>
+		    	<p> We will be using <a href="http://mmacklin.com/pbf_sig_preprint.pdf"> this paper </a> to help write this simulator, </p> 
+
+		</div>
+</body>
+</html
