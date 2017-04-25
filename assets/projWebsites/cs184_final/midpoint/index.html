@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CS184 Final Project Milsetone Status Report</title>
+	<link rel="stylesheet" type="text/css" href="assets/style.css"/>
+</head>
+<body>
+	<div id="wrap">
+
+		<div id="header">
+			<div id="projectInfo">
+				<div class="name"> Final Project Milestone Status Report</div>
+				<div class="name"> 3D Fluid Simulator </div>
+				<div class="info"> Mirabel Huff, CS184-abs</div>
+				<div class="info"> AnnaMarie Garlin, CS184-??? </div>
+			</div>
+			<br>
+			<div id="classInfo">
+				<div id="subhead"> 
+					<a href="http://cs184.org"> CS184 Spring 2017 </a> taught by Professor Ren Ng at UC Berkeley
+				</div>
+			</div>
+			<br>
+		</div>
+
+		<div id="content">
+			<h1> Project Overview </h1>
+				<p> As a reminder, for our final project, we wanted to implement physically based simulations of fluids in real time. Our plan was to first implement a water simulator (based on <a href="http://mmacklin.com/pbf_sig_preprint.pdf" target="_blank"> this paper by Miles Macklin and Matthias Muller </a>) and then add on different kinds of fluids, such as mercury or chocolate.  </p>
+
+				<p> You can find our project proposal <a href="http://mirabelhuff.github.io/assets/projWebsites/cs184_final/proposal/index.html" target="_blank"> here</a>. </p>
+
+			<h1> Project Status </h1>
+				<p> Our goal for the first week was to have a simulation environment that we woud be able to visualize and test our work in. We got some starter code to help with visualizing the water particles from the instructors, which was great, but it took us some time to get it working on our computers, especially because Mirabel is working in a Linux environment while Anna is working in a Mac environment. For both of us, there were a lot of things we needed to install, such as GLM and OpenCV and we ran into installation issues with both packages. We ended up making changes to the MakeFile we were given in order to properly run openCV and Anna had to change hers more in order to deal with some deprecated functions that were preventing her from compiling completely. In the end, once we got things to compile, we still had slightly different results on our different systems even though we were running the exact same things. Since it was just a color issue, we decided to continue. </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/hers.png">
+						<figcaption> Anna's Mac machine </figcaption>
+					</figure>
+					<figure>
+						<img class = "four" src="assets/img/mine.png">
+						<figcaption> Mirabel's Linux machine</figcaption>
+					</figure>
+				</div>
+
+				<p> We also have the set up to automatically create videos of our simulation as it happens. However, since we currently don't have any simulation, nothing really gets recorded except for camera changes. </p>
+
+				<div class="imgHolder">
+					<figure>
+						<img class = "four" src="assets/img/video.gif">
+					</figure>
+				</div>
+      		
+			<h1> What We Plan To Do Next </h1>
+		    	<p> Originally, by this point, we had planned to have the water simulator complete (minus collisions) so that we could start working on different types of fluids and possibly even some shaders and renders. Given our current status, we're changing what we plan to deliver a little bit as we think we overestimated how much we could complete with this project. Below you can find our updated schedule. </p>
+
+				<h2> Updated Schedule </h2>
+					<p> <b>Now (2 Weeks In) </b></p>
+					<p> So far, we've set up a simulation environment to test and visualize our simulation.
+					<p> <b>Week 3 </b></p>
+					<p> This week, we plan to actually implement the simulation. We've planned out what we need to do pretty thoroughly so we don't expect it to take that long to actually implement our plan. We're planning to use a HashMap like we did for the cloth simulation project to determine the particles in relation to each other. Then, we wil luse the paper linked above to apply collisions to the particles and update the hash map at each step. </p>
+					<p> <b>Week 4 </b></p>
+					<p> In the final week, we plan to add different kinds of fluids aside from water by changing the properties of the forces acting on the particles. </p>
+
+			<h1> Presentation Slides </h1>
+				<div class="imgHolder">
+					<figure>
+						<img class = "three" src="assets/img/slide1.jpg">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/slide2.jpg">
+					</figure>
+					<figure>
+						<img class = "three" src="assets/img/slide3.jpg">
+					</figure>
+				</div>
+
+				<p> Slides can be found <a href="https://docs.google.com/a/berkeley.edu/presentation/d/1xRONLgyqa8weR_z9A2a3j3C9WLhyRBuSGiItkxjVoug/edit?usp=sharing" target="_blank"> here. </a></p>
+
+			<h1> Video </h1>
+            <p>Youtube: <a href="https://youtu.be/pa9f_5JCx7M" target="_blank"> Here</a></p>
+
+		</div>
+</body>
+</html
